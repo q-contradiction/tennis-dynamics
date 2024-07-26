@@ -157,7 +157,7 @@ private:
 
     array<double, 2>  winProp{};
     array<double, 2>  expPoints{}, expGames{}, expSets{};   //expected values
-    double medianTGames, tiebreakProp, finalSetProp;
+    double tiebreakProp, finalSetProp;
 
     stats simStats[2]{};                //simulation stats for Player A & B
     void set_player_sim_stats(int pl);

@@ -12,7 +12,7 @@
 
 #include "../include/match.h"
 
-int main()
+int main() 
 {
 
     std::ofstream csvPbp = write_file(".\\files-sim\\pbp_sample1.csv", 0);

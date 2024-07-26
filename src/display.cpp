@@ -23,7 +23,7 @@ std::ofstream write_file(const string& filename, int type) {
 
     vector<string> sim{ "propServerA", "propServerB", "bestof", "model",
         "pointServeRate", "pointRate", "holdRate", "gameRate", "setRate", "winRate",
-        "expPoints", "expGames", "expSets", "tiebreakRate", "medianTGames" };
+        "expPoints", "expGames", "expSets", "tiebreakRate" };
 
     array<vector<string>, 3> headers{ pbp, match, sim };
 
@@ -104,5 +104,5 @@ void TennisMC::display_sim_rates(ostream& output) {
     simStats[0].display_rates(output);
     output << DELIM;
     output << winProp[0] << DELIM << expPoints[0] << DELIM << expGames[0] << DELIM << expSets[0] << DELIM
-        << tiebreakProp << DELIM << medianTGames << endl;
+        << tiebreakProp <<  endl;
 }

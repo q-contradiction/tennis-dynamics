@@ -12,6 +12,7 @@ Player::Player(std::string name, double probS, double probR) {
 }
 
 void Player::initialize_prop() {
+
     tProbServer = iProbServer;
     tProbReceiver = iProbReceiver;
 }
@@ -23,7 +24,6 @@ void Player::update_points(bool server, bool winner) {
 
     currentSet.pointsSvr += (int)server;
     currentSet.pointsSvrW += (int)(server && winner);
-
 }
 
 void Player::update_games(bool server, bool winner, bool tiebreak) {
@@ -54,8 +54,8 @@ void Player::set_match_stats(bool winner) {
 
     this->winner = winner;
 
-    for (int i = 0; i < setStats.size(); ++i) {
-        matchStats += setStats[i];
+    for (int set = 0; set < setStats.size(); ++set) {
+        matchStats += setStats[set];
     }
     matchStats.set_rates();
 }
@@ -128,56 +128,60 @@ void TennisMatch::initialize_match() {
 
 bool TennisMatch::is_tiebreak() {
 
-    return (sGames[0] == 6 && sGames[1] == 6) ? true : false;
+    return (sGames[0] == 6 && sGames[1] == 6);
 }
 
 bool TennisMatch::is_game_on() {
 
     int min_points = tiebreakON ? 7 : 4;
+    bool gameWinner1, gameWinner2, gameEnded;
 
-    int gamewinner1 = ((gPoints[0] >= min_points) && (gPoints[0] - gPoints[1] >= 2)) ? 1 : 0;
-    int gamewinner2 = ((gPoints[1] >= min_points) && (gPoints[1] - gPoints[0] >= 2)) ? 1 : 0;
+    gameWinner1 = ((gPoints[0] >= min_points) && (gPoints[0] - gPoints[1] >= 2));
+    gameWinner2 = ((gPoints[1] >= min_points) && (gPoints[1] - gPoints[0] >= 2));
 
-    bool game_ended = gamewinner1 || gamewinner2;
+    gameEnded = gameWinner1 || gameWinner2;
 
-    if (game_ended) {
+    if (gameEnded) {
         //gamewinner has the same value of gamewinner status of B.
-        int gamewinner = gamewinner2;
-        update_games(gamewinner);
+        int gameWinner = gameWinner2;
+        update_games(gameWinner);
     }
 
-    return !game_ended;
+    return !gameEnded;
 }
 
 bool TennisMatch::is_set_on() {
 
-    bool set_ended, setwinner1, setwinner2;
+    bool setWinner1, setWinner2, setEnded;
 
-    setwinner1 = ((sGames[0] >= 6 && sGames[0] - sGames[1] >= 2) || (tiebreakON && sGames[0] == sGames[1] + 1)) ? 1 : 0;
-    setwinner2 = ((sGames[1] >= 6 && sGames[1] - sGames[0] >= 2) || (tiebreakON && sGames[1] == sGames[0] + 1)) ? 1 : 0;
-    set_ended = setwinner1 || setwinner2;
+    setWinner1 = ((sGames[0] >= 6 && sGames[0] - sGames[1] >= 2) || (tiebreakON && sGames[0] == sGames[1] + 1));
+    setWinner2 = ((sGames[1] >= 6 && sGames[1] - sGames[0] >= 2) || (tiebreakON && sGames[1] == sGames[0] + 1));
 
-    if (set_ended) {
+    setEnded = setWinner1 || setWinner2;
+
+    if (setEnded) {
         // setwinner has the same value of setwinner status of B
-        int setwinner = setwinner2;
+        int setwinner = setWinner2;
         update_sets(setwinner);
     }
 
-    return !set_ended;
+    return !setEnded;
 }
 
 bool TennisMatch::is_match_on() {
 
-    int matchwinner1 = (sets[0] == maxSets) ? 1 : 0;
-    int matchwinner2 = (sets[1] == maxSets) ? 1 : 0;
-    bool match_ended = matchwinner1 || matchwinner2;
+    bool matchWinner1, matchWinner2, matchEnded;
 
-    if (match_ended) {
-        int matchwinner = matchwinner2;
+    matchWinner1 = (sets[0] == maxSets);
+    matchWinner2 = (sets[1] == maxSets);
+    matchEnded = matchWinner1 || matchWinner2;
+
+    if (matchEnded) {
+        int matchwinner = matchWinner2;
         set_match_stats(matchwinner);
     }
 
-    return !match_ended;
+    return !matchEnded;
 }
 
 // Stats for Player1 are opposite to player 2 - no need to update
@@ -222,10 +226,10 @@ void TennisMatch::simulate_rally() {
 
     double x = distribution(generator);
     double prop = players[server].get_server_prop();
-    int pointwinner = (x <= prop) ? server : server ^ 1;
+    int pointWinner = (x <= prop) ? server : server ^ 1;
 
-    update_points(pointwinner);
-    update_momentum(pointwinner);
+    update_points(pointWinner);
+    update_momentum(pointWinner);
 }
 
 // Initialization of game & set not in the beggining
@@ -264,18 +268,6 @@ void TennisMatch::simulate_match() {
     }
 }
 
-double median(vector<int> a)
-{
-    int n = a.size();
-
-    // If size of the arr[] is even
-    nth_element(a.begin(), a.begin() + n / 2, a.end());
-    nth_element(a.begin(), a.begin() + (n - 1) / 2, a.end());
-
-    return (double)(a[(n - 1) / 2] + a[n / 2]) / 2;
-}
-
-
 TennisMC::TennisMC(double propA, double propB, int best_of, int sims, string model,
     int starting_server, int PA, int PB, int GA, int GB, int SA, int SB,
     string nameA, string nameB) {
@@ -301,8 +293,6 @@ TennisMC::TennisMC(double propA, double propB, int best_of, int sims, string mod
     //set_player_sim_stats(1);
 
     tiebreakProp = (double)simStats[0].tiebreaks / simStats[0].sets;
-    medianTGames = median(totalGames);
-
 }
 
 void TennisMC::set_player_sim_stats(int pl) {
